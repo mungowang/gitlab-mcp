@@ -1,0 +1,9 @@
+# A published CLI must keep LF line endings: a CRLF shebang breaks the binary on Linux/macOS.
+* text=auto eol=lf
+
+# Binaries that are executed directly need the executable bit preserved.
+bin/*.mjs text eol=lf
+scripts/*.mjs text eol=lf
+
+*.png binary
+*.tgz binary

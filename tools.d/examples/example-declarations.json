@@ -1,0 +1,33 @@
+{
+  "tools": {
+    "example_create_issue": {
+      "desc": "EXAMPLE (not loaded). Shows a write declaration: the body is built from the params, and a param referenced with {name} alone keeps its type.",
+      "readOnly": false,
+      "returns": "anyObject",
+      "params": {
+        "project": "project",
+        "title": "string",
+        "description": "string",
+        "labels": "string"
+      },
+      "required": ["project", "title"],
+      "method": "POST",
+      "path": "/projects/{project}/issues",
+      "body": {
+        "title": "{title}",
+        "description": "{description}",
+        "labels": "{labels}"
+      }
+    },
+
+    "example_project_issue": {
+      "desc": "EXAMPLE (not loaded). A path placeholder for the project is percent-encoded, so 'group/app' reaches the instance as group%2Fapp.",
+      "readOnly": true,
+      "returns": "anyObject",
+      "params": { "project": "project", "iid": "iid" },
+      "required": ["project", "iid"],
+      "method": "GET",
+      "path": "/projects/{project}/issues/{iid}"
+    }
+  }
+}

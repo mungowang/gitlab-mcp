@@ -1,0 +1,109 @@
+{
+  "tools": {
+    "gitlab_project_issues": {
+      "desc": "List a project's issues. Read-only extra: this file declares the endpoints the merge-request tools do not cover, so they cost no code.",
+      "readOnly": true,
+      "returns": "anyPage",
+      "params": {
+        "project": "project",
+        "state": "string",
+        "labels": "string",
+        "search": "string",
+        "page": "page",
+        "perPage": "perPage"
+      },
+      "required": ["project"],
+      "method": "GET",
+      "path": "/projects/{project}/issues",
+      "query": {
+        "state": "{state}",
+        "labels": "{labels}",
+        "search": "{search}",
+        "page": "{page}",
+        "per_page": "{perPage}"
+      }
+    },
+
+    "gitlab_issue_get": {
+      "desc": "Get one issue by its project-scoped iid.",
+      "readOnly": true,
+      "returns": "anyObject",
+      "params": { "project": "project", "iid": "iid" },
+      "required": ["project", "iid"],
+      "method": "GET",
+      "path": "/projects/{project}/issues/{iid}"
+    },
+
+    "gitlab_project_members": {
+      "desc": "List a project's members with their access level and numeric user id - the ids gitlab_mr_create/update take as assignee_id.",
+      "readOnly": true,
+      "returns": "anyPage",
+      "params": { "project": "project", "search": "search", "page": "page", "perPage": "perPage" },
+      "required": ["project"],
+      "method": "GET",
+      "path": "/projects/{project}/members",
+      "query": { "query": "{search}", "page": "{page}", "per_page": "{perPage}" }
+    },
+
+    "gitlab_project_pipelines": {
+      "desc": "List a project's pipelines, optionally filtered by ref or status. On 11.3 a merge request's own pipelines come from gitlab_mr_pipelines.",
+      "readOnly": true,
+      "returns": "anyPage",
+      "params": {
+        "project": "project",
+        "ref": "ref",
+        "status": "string",
+        "page": "page",
+        "perPage": "perPage"
+      },
+      "required": ["project"],
+      "method": "GET",
+      "path": "/projects/{project}/pipelines",
+      "query": { "ref": "{ref}", "status": "{status}", "page": "{page}", "per_page": "{perPage}" }
+    },
+
+    "gitlab_pipeline_jobs": {
+      "desc": "List the jobs of a pipeline with their status, stage and failure reason. Job logs are text, not JSON, so they are not reachable from this JSON layer.",
+      "readOnly": true,
+      "returns": "anyPage",
+      "params": { "project": "project", "pipelineId": "number", "page": "page", "perPage": "perPage" },
+      "required": ["project", "pipelineId"],
+      "method": "GET",
+      "path": "/projects/{project}/pipelines/{pipelineId}/jobs",
+      "query": { "page": "{page}", "per_page": "{perPage}" }
+    },
+
+    "gitlab_commit_list": {
+      "desc": "List repository commits on a ref. Use it to see what a merge request's source branch contains beyond the diff.",
+      "readOnly": true,
+      "returns": "anyPage",
+      "params": { "project": "project", "ref": "ref", "page": "page", "perPage": "perPage" },
+      "required": ["project"],
+      "method": "GET",
+      "path": "/projects/{project}/repository/commits",
+      "query": { "ref_name": "{ref}", "page": "{page}", "per_page": "{perPage}" }
+    },
+
+    "gitlab_tags_list": {
+      "desc": "List repository tags.",
+      "readOnly": true,
+      "returns": "anyPage",
+      "params": { "project": "project", "page": "page", "perPage": "perPage" },
+      "required": ["project"],
+      "method": "GET",
+      "path": "/projects/{project}/repository/tags",
+      "query": { "page": "{page}", "per_page": "{perPage}" }
+    },
+
+    "gitlab_group_projects": {
+      "desc": "List the projects of a group (including its subgroups), to find a project path from a group.",
+      "readOnly": true,
+      "returns": "anyPage",
+      "params": { "group": "string", "search": "search", "page": "page", "perPage": "perPage" },
+      "required": ["group"],
+      "method": "GET",
+      "path": "/groups/{group}/projects",
+      "query": { "search": "{search}", "page": "{page}", "per_page": "{perPage}" }
+    }
+  }
+}

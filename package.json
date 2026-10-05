@@ -1,0 +1,57 @@
+{
+  "name": "@mohou/gitlab-mcp",
+  "version": "1.0.0",
+  "description": "MCP server and CLI for a self-hosted GitLab CE 11.3 instance - merge request workflow: create, review, line-level comments, resolve, merge",
+  "type": "module",
+  "engines": {
+    "node": ">=22.6"
+  },
+  "bin": {
+    "gitlab-mcp": "bin/gitlab-server.mjs",
+    "mohou-gitlab": "bin/gitlab.mjs"
+  },
+  "files": [
+    "src",
+    "bin",
+    "tools.d",
+    "scripts",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "start": "node bin/gitlab-server.mjs",
+    "cli": "node bin/gitlab.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify:live": "node test/live-verify.mjs",
+    "tools:describe": "node scripts/dump-tools.mjs",
+    "pack:check": "npm pack --dry-run",
+    "prepublishOnly": "npm test"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "zod": "^3.25.76"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "MIT",
+  "author": "MungoWang <692223545@qq.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+http://gitlab.example.com/mohou/gitlab-mcp.git"
+  },
+  "homepage": "http://gitlab.example.com/mohou/gitlab-mcp#readme",
+  "bugs": {
+    "url": "http://gitlab.example.com/mohou/gitlab-mcp/issues"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "gitlab",
+    "gitlab-ce",
+    "merge-request",
+    "code-review",
+    "cli"
+  ]
+}

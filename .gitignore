@@ -1,0 +1,20 @@
+node_modules/
+*.log
+verify-report.md
+
+# A real instance profile is yours, not the repo's - keep the example, not the data.
+instance-profile.md
+
+# macOS metadata - never belongs in a repository
+.DS_Store
+._*
+
+# Structure captures: raw payloads are real instance data and must never be committed.
+# capture/report.md is value-free and safe to share; the raw/ tree next to it is not.
+capture/
+
+# npm pack / publish artefacts
+*.tgz
+
+# NOTE: .npmrc is deliberately NOT ignored - a scope->registry mapping is worth committing.
+# Never put a token in it; use `npm login` or an ${NPM_TOKEN} environment reference.
