@@ -219,10 +219,7 @@ position wants `head_sha` / `base_sha` / `start_sha`.
 
 `npm test` runs against `test/mock-gitlab.mjs`, which is faithful to the 11.3 **shapes** (the
 `*_commit_sha` naming, hunk numbering, the 405/406/409 merge failures, nested validation errors)
-rather than to GitLab's behaviour. It cannot tell you that the real instance accepts a nested
-`position` object, because it was written from the same reading of the docs.
-
-For that, run the live check once the VPN is up:
+rather than to GitLab's behaviour. Only a real instance can settle the rest:
 
 ```bash
 GITLAB_BASE_URL=http://gitlab.example.com GITLAB_TOKEN=... \
@@ -233,6 +230,32 @@ GITLAB_BASE_URL=... GITLAB_TOKEN=... \
 
 It reports PASS/FAIL/SKIP per assumption and exits non-zero on any failure. In `--write` mode the
 only mutation is one probe comment, which it deletes again.
+
+**Result against a live GitLab CE 11.3.0 instance** (revision `17bd59a`): **14 passed, 0 failed**,
+in both modes. What only that run could establish, and did:
+
+- `PRIVATE-TOKEN` authentication works on 11.3.
+- A project path arrives correctly percent-encoded.
+- Pagination headers are present and usable (`184` merge requests, `nextPage=2`).
+- `GET /versions` names its SHAs `base_commit_sha` / `start_commit_sha` / `head_commit_sha`, which
+  is **not** what a comment position calls them - the mapping the client performs is correct.
+- Real diff text parses, and a real line resolves to a commentable position.
+- **A nested `position` object is accepted when creating a diff note** - the single assumption the
+  offline suite could never test, since it was written from the same reading of the docs.
+- The created note comes back carrying its position, appears in the discussions list, toggles
+  through resolve/unresolve, and deletes cleanly.
+- A **merged** merge request still reports `merge_status: can_be_merged`, so `state` is the field
+  that decides whether a merge is possible. The tool descriptions say so.
+
+Still unverified live, and deliberately listed rather than glossed over:
+
+| Area | Why, and how to close it |
+| --- | --- |
+| The draft positive case (`WIP: ` title -> `work_in_progress: true`) | Needs a merge request that is actually a draft; the verified project had none among 100. |
+| `gitlab_mr_create` / `gitlab_mr_update` / `gitlab_mr_merge` | Needs a throwaway branch in a project where creating a merge request is acceptable; 11.3 has no API to delete a merge request, so the residue is one closed or merged one. |
+
+Everything else in this file that is not one of those two lines has been exercised against the
+real instance.
 
 ## Extending
 

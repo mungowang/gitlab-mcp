@@ -12,8 +12,13 @@ import { z } from 'zod';
  * Reason: these schemas were written against the 11.3.0 API documentation, not against a live
  * instance - the instance is only reachable over VPN. A required key this instance does not
  * send turns a working call into an MCP output-validation error, which is strictly worse than
- * a vaguer schema. `test/live-verify.mjs` is where the assumptions get checked; tighten these
- * only after that report is green.
+ * a vaguer schema.
+ *
+ * `test/live-verify.mjs` now passes against a real 11.3.0 instance (14 checks: the read paths, and
+ * creating, resolving and deleting a diff note), so the fields those checks touch are known to be
+ * present - iid, state, merge_status, work_in_progress, sha, changes[].diff, and the *_commit_sha
+ * names. The schemas stay permissive anyway: mr_create/mr_update/mr_merge have not been exercised
+ * live, and one verified merge request is not every merge request on every project.
  *
  * Note: tools that can return an empty body must NOT declare `returns` - a declared
  * outputSchema requires structuredContent, and an empty response violates it. On GitLab 11.3
