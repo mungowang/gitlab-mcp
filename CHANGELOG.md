@@ -1,3 +1,13 @@
+## 1.0.1
+
+### Fix: the shims could not start on Windows
+
+Both `bin/gitlab-server.mjs` and `bin/gitlab.mjs` ended with `await import(entry)`, and `entry` is an
+absolute path. On Windows that reads as a URL scheme (`C:`), so Node refused it with
+`ERR_UNSUPPORTED_ESM_URL_SCHEME`: the MCP server exited before it spoke the protocol (a client shows
+`Connection closed`) and the CLI failed the same way. A POSIX path happens to be accepted, so only
+Windows was affected. Both entries are imported through `pathToFileURL(entry).href` now.
+
 # Changelog
 
 ## 1.0.0

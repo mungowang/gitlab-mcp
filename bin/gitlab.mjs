@@ -14,7 +14,7 @@ if (major < MIN_MAJOR || (major === MIN_MAJOR && minor < MIN_MINOR)) {
 }
 
 import { existsSync, readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, resolve } from 'node:path';
 
 const argv = process.argv.slice(2);
@@ -72,4 +72,6 @@ if (!existsSync(entry)) {
   process.exit(1);
 }
 
-await import(entry);
+// A `file://` URL, not a path: on Windows `C:\...` reads as a URL scheme and Node refuses it
+// (ERR_UNSUPPORTED_ESM_URL_SCHEME), while a POSIX path happens to work.
+await import(pathToFileURL(entry).href);

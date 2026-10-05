@@ -1,6 +1,6 @@
 {
   "name": "@mohou/gitlab-mcp",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "MCP server and CLI for a self-hosted GitLab CE 11.3 instance - merge request workflow: create, review, line-level comments, resolve, merge",
   "type": "module",
   "engines": {
