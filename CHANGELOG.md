@@ -16,3 +16,8 @@ First version, targeting GitLab CE 11.3.0.
   commits, tags, group projects).
 - Offline test suite (`npm test`) against a mock 11.3 instance, plus `npm run verify:live` for the
   assumptions only a real instance can confirm.
+- Distributed as compiled JavaScript (`dist/`, built by `prepack`) while development and the tests
+  run the TypeScript sources directly: Node refuses type stripping for anything under
+  `node_modules`, so a published package of `.ts` files cannot be executed by a consumer at all.
+- `npm run verify:package` packs, installs into a throwaway directory and exercises both binaries,
+  which is the check that catches packaging faults a checkout cannot show.

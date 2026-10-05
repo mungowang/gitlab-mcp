@@ -13,7 +13,9 @@ if (major < MIN_MAJOR || (major === MIN_MAJOR && minor < MIN_MINOR)) {
   process.exit(1);
 }
 
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, resolve } from 'node:path';
 
 const argv = process.argv.slice(2);
 
@@ -54,4 +56,15 @@ if (argv.includes('--dry-run')) {
 }
 
 process.argv = [process.argv[0], process.argv[1], ...argv];
-await import('../src/cli.ts');
+
+// Same dist-first rule as bin/gitlab-server.mjs - see the comment there.
+const here = dirname(fileURLToPath(import.meta.url));
+const built = resolve(here, '../dist/cli.js');
+const source = resolve(here, '../src/cli.ts');
+
+if (existsSync(built)) await import(built);
+else if (existsSync(source)) await import(source);
+else {
+  process.stderr.write('[gitlab] found neither dist/cli.js nor src/cli.ts - run `npm run build`\n');
+  process.exit(1);
+}

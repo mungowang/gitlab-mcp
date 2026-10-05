@@ -269,20 +269,44 @@ Then:
 
 ```bash
 npm test                      # 89 offline tests
-npm run pack:check            # the file list that would ship - verify tools.d/ is in it
+npm run pack:check            # the file list that would ship - verify dist/ and tools.d/ are in it
+npm run verify:package        # pack, install into a temp dir, run both binaries, speak MCP to them
 npm version patch             # or minor/major; updates package.json + git tag
-npm publish                   # prepublishOnly re-runs the tests
+npm publish                   # prepublishOnly runs both gates above
 ```
 
-Notes specific to this package:
+### Development needs no build; the published package does
 
-- **`tools.d/` must ship.** The server loads `tools.d/*.json` at startup from the package root;
-  if that directory were ever dropped from `files`, every JSON-declared tool would disappear and
-  startup would fail. `npm run pack:check` is the guard.
-- **The shipped code is TypeScript, run by Node's type stripping.** That is why `engines` requires
-  Node 22.6+ and why there is no build output. Do not "fix" this by adding a build step without
-  also changing `bin/*.mjs` and the `files` list.
+This is the one place where the package departs from a plain "run the TypeScript" layout, and the
+reason is a hard Node restriction:
+
+```
+ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING
+```
+
+Node strips types for the **application's own** sources but refuses to do so for anything under
+`node_modules`. So `src/*.ts` runs fine in a checkout (and every test relies on that) and cannot
+run at all once installed as a dependency. The package therefore ships `dist/*.js`, built by
+`scripts/build.mjs` (esbuild, dependencies kept external), and the bin entries load `dist/` when
+it exists and fall back to `src/`:
+
+```
+bin/gitlab-server.mjs   -> dist/index.js   (fallback: src/index.ts)
+bin/gitlab.mjs          -> dist/cli.js     (fallback: src/cli.ts)
+```
+
+`prepack` runs the build, so `npm pack` and `npm publish` always emit a fresh bundle; `dist/` is
+gitignored. Editing a tool means editing the TypeScript, and nothing else - tests run the sources
+and publishing rebuilds.
+
+Other notes specific to this package:
+
+- **`tools.d/` must ship.** The server loads `tools.d/*.json` from the package root at startup; if
+  that directory were dropped from `files`, every JSON-declared tool would disappear and startup
+  would fail. Both `pack:check` and `verify:package` check for it.
+- **`engines` requires Node 22.6+** because the fallback path and the test suite use type
+  stripping. The bundle itself would run on older Node.
 - **No provenance attestation.** `npm publish --provenance` needs a public source repository on a
   supported CI provider; this repository is self-hosted, so provenance is not available.
-- `prepublishOnly` runs the offline suite only. The live checks
+- `prepublishOnly` runs the offline suite and the package verification only. The live checks
   (`npm run verify:live`) need VPN access and a token, so they are not part of publishing.

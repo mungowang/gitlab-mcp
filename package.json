@@ -11,6 +11,7 @@
     "mohou-gitlab": "bin/gitlab.mjs"
   },
   "files": [
+    "dist",
     "src",
     "bin",
     "tools.d",
@@ -22,11 +23,14 @@
   "scripts": {
     "start": "node bin/gitlab-server.mjs",
     "cli": "node bin/gitlab.mjs",
+    "build": "node scripts/build.mjs",
     "test": "node --test test/*.test.mjs",
     "verify:live": "node test/live-verify.mjs",
     "tools:describe": "node scripts/dump-tools.mjs",
     "pack:check": "npm pack --dry-run",
-    "prepublishOnly": "npm test"
+    "verify:package": "node scripts/verify-package.mjs",
+    "prepack": "npm run build",
+    "prepublishOnly": "npm test && npm run verify:package"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
@@ -53,5 +57,8 @@
     "merge-request",
     "code-review",
     "cli"
-  ]
+  ],
+  "devDependencies": {
+    "esbuild": "^0.28.2"
+  }
 }

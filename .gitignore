@@ -1,4 +1,7 @@
 node_modules/
+
+# build output for the published package (scripts/build.mjs); never committed
+dist/
 *.log
 verify-report.md
 
