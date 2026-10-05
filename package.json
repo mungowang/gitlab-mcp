@@ -40,14 +40,14 @@
     "access": "public"
   },
   "license": "MIT",
-  "author": "MungoWang <692223545@qq.com>",
+  "author": "MungoWang <mungowang@users.noreply.github.com>",
   "repository": {
     "type": "git",
-    "url": "git+http://gitlab.example.com/mohou/gitlab-mcp.git"
+    "url": "git+https://github.com/mungowang/gitlab-mcp.git"
   },
-  "homepage": "http://gitlab.example.com/mohou/gitlab-mcp#readme",
+  "homepage": "https://github.com/mungowang/gitlab-mcp#readme",
   "bugs": {
-    "url": "http://gitlab.example.com/mohou/gitlab-mcp/issues"
+    "url": "https://github.com/mungowang/gitlab-mcp/issues"
   },
   "keywords": [
     "mcp",

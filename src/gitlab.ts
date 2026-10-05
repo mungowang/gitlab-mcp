@@ -149,7 +149,7 @@ export function explain(status: number, body: string, method: string, path: stri
       + `To tell those apart, search for the path this token can actually see: `
       + `gitlab_project_search with the project name (GET /projects?search=<name>). `
       + `If the namespace is a person, it is their username, not their display name `
-      + `(name "heidi.he" can be username "heidi").`;
+      + `(a user whose display name is "Jane Doe" can have the username "jane").`;
   }
   if (status === 405) {
     return `${head}: the action is not allowed in the current state (${msg}). For a merge this means `
