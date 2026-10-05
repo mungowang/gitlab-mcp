@@ -291,9 +291,10 @@ Prerequisites, in order:
 Then:
 
 ```bash
-npm test                      # 89 offline tests
+npm test                      # 93 offline tests
 npm run pack:check            # the file list that would ship - verify dist/ and tools.d/ are in it
 npm run verify:package        # pack, install into a temp dir, run both binaries, speak MCP to them
+npm publish --dry-run         # the whole publish path, including prepublishOnly, without publishing
 npm version patch             # or minor/major; updates package.json + git tag
 npm publish                   # prepublishOnly runs both gates above
 ```
@@ -339,5 +340,10 @@ Other notes specific to this package:
   stripping. The bundle itself would run on older Node.
 - **No provenance attestation.** `npm publish --provenance` needs a public source repository on a
   supported CI provider; this repository is self-hosted, so provenance is not available.
+- **Run `npm publish --dry-run` before the real one.** npm exports its configuration to lifecycle
+  scripts, so a dry run reaches `prepublishOnly` with `npm_config_dry_run=true` - which once made
+  `verify:package` fail, because `npm pack` prints a filename without writing the file and the
+  install that follows hits ENOENT. The script neutralises that variable; the dry run is the check
+  that it stays neutralised.
 - `prepublishOnly` runs the offline suite and the package verification only. The live checks
   (`npm run verify:live`) need VPN access and a token, so they are not part of publishing.

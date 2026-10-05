@@ -22,9 +22,19 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const keep = process.argv.includes('--keep');
 const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 
-const run = (cmd, args, cwd) => execFileSync(cmd, args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+/**
+ * npm exports its own configuration to lifecycle scripts, so `npm publish --dry-run` - the
+ * pre-flight a maintainer is told to run - reaches this script with npm_config_dry_run=true. That
+ * silently turns the `npm pack` and `npm install` below into no-ops: `npm pack --json` still
+ * prints a filename, so the tarball looks packed while nothing was written, and the install then
+ * fails with ENOENT. The child commands get a neutralised environment instead.
+ */
+const CHILD_ENV = { ...process.env };
+delete CHILD_ENV.npm_config_dry_run;
+
+const run = (cmd, args, cwd) => execFileSync(cmd, args, { cwd, env: CHILD_ENV, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
 /** For steps whose output a human needs to see when they fail. */
-const runVisible = (cmd, args, cwd) => execFileSync(cmd, args, { cwd, stdio: ['ignore', 'inherit', 'inherit'] });
+const runVisible = (cmd, args, cwd) => execFileSync(cmd, args, { cwd, env: CHILD_ENV, stdio: ['ignore', 'inherit', 'inherit'] });
 const step = (name, detail = '') => process.stdout.write(`[PASS] ${name}${detail ? ` - ${detail}` : ''}\n`);
 
 const work = mkdtempSync(join(tmpdir(), 'gitlab-mcp-package-'));
@@ -62,7 +72,7 @@ try {
 
   // 2) Install it as a consumer would.
   run(npm, ['init', '-y'], work);
-  execFileSync(npm, ['install', '--no-audit', '--no-fund', tarball], { cwd: work, stdio: ['ignore', 'pipe', 'pipe'] });
+  execFileSync(npm, ['install', '--no-audit', '--no-fund', tarball], { cwd: work, env: CHILD_ENV, stdio: ['ignore', 'pipe', 'pipe'] });
   const installed = join(work, 'node_modules', '@mohou', 'gitlab-mcp');
   if (!existsSync(join(installed, 'tools.d', 'gitlab-extras.json'))) {
     throw new Error('tools.d did not survive installation - the server would start with no JSON tools');
@@ -81,7 +91,7 @@ try {
   const server = spawn(process.execPath, [join(work, 'node_modules', '.bin', 'gitlab-mcp')], {
     cwd: work,
     // Deliberately unconfigured: it must still start and expose its tools.
-    env: { ...process.env, GITLAB_BASE_URL: '', GITLAB_TOKEN: '' },
+    env: { ...CHILD_ENV, GITLAB_BASE_URL: '', GITLAB_TOKEN: '' },
     stdio: ['pipe', 'pipe', 'pipe'],
   });
   const pending = new Map();
