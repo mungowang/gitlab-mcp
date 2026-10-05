@@ -287,13 +287,21 @@ ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING
 Node strips types for the **application's own** sources but refuses to do so for anything under
 `node_modules`. So `src/*.ts` runs fine in a checkout (and every test relies on that) and cannot
 run at all once installed as a dependency. The package therefore ships `dist/*.js`, built by
-`scripts/build.mjs` (esbuild, dependencies kept external), and the bin entries load `dist/` when
-it exists and fall back to `src/`:
+`scripts/build.mjs` (esbuild, dependencies kept external).
+
+The bin entries resolve the entry **source first, bundle second**:
 
 ```
-bin/gitlab-server.mjs   -> dist/index.js   (fallback: src/index.ts)
-bin/gitlab.mjs          -> dist/cli.js     (fallback: src/cli.ts)
+bin/gitlab-server.mjs   ->  src/index.ts  if it exists, else dist/index.js
+bin/gitlab.mjs          ->  src/cli.ts    if it exists, else dist/cli.js
 ```
+
+Sources first, not bundle first, and the order is not cosmetic: preferring `dist/` means that
+after any build a checkout silently runs the stale bundle, which once hid a real bug in the
+sibling `jira-mcp` project during exactly this kind of verification. The published tarball
+contains no `src/` at all, so an install takes the bundle path; `npm run verify:package` fails if
+`src/` ever appears in the tarball, because shipping it would send an install down the source path
+into `ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING`.
 
 `prepack` runs the build, so `npm pack` and `npm publish` always emit a fresh bundle; `dist/` is
 gitignored. Editing a tool means editing the TypeScript, and nothing else - tests run the sources

@@ -12,10 +12,8 @@
   },
   "files": [
     "dist",
-    "src",
     "bin",
     "tools.d",
-    "scripts",
     "README.md",
     "CHANGELOG.md",
     "LICENSE"

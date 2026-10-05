@@ -57,14 +57,19 @@ if (argv.includes('--dry-run')) {
 
 process.argv = [process.argv[0], process.argv[1], ...argv];
 
-// Same dist-first rule as bin/gitlab-server.mjs - see the comment there.
-const here = dirname(fileURLToPath(import.meta.url));
-const built = resolve(here, '../dist/cli.js');
-const source = resolve(here, '../src/cli.ts');
+// Same rule as bin/gitlab-server.mjs: sources win when present, so a checkout cannot run a stale
+// build; an install has no sources and runs the bundle.
+const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const source = resolve(root, 'src/cli.ts');
+const bundled = resolve(root, 'dist/cli.js');
+const entry = existsSync(source) ? source : bundled;
 
-if (existsSync(built)) await import(built);
-else if (existsSync(source)) await import(source);
-else {
-  process.stderr.write('[gitlab] found neither dist/cli.js nor src/cli.ts - run `npm run build`\n');
+if (!existsSync(entry)) {
+  process.stderr.write(
+    `[gitlab] found neither ${source} nor ${bundled}. ` +
+    `Run from a source checkout, or install the published package.\n`,
+  );
   process.exit(1);
 }
+
+await import(entry);

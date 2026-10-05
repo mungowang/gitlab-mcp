@@ -45,6 +45,12 @@ try {
   if (paths.some((p) => p.startsWith('test/') || p.startsWith('node_modules/'))) {
     throw new Error('the tarball ships test/ or node_modules/');
   }
+  // src/ must NOT ship: with sources present the bin entries prefer them, and an installed
+  // checkout of .ts under node_modules cannot be type-stripped - the exact failure this package
+  // was rebuilt to avoid.
+  if (paths.some((p) => p.startsWith('src/'))) {
+    throw new Error('the tarball ships src/ - an install would prefer the sources and fail with ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING');
+  }
   step('tarball contains the runtime pieces and nothing private', `${info.filename}, ${info.files.length} files, ${(info.size / 1024).toFixed(1)} kB`);
 
   // The published code must be plain JavaScript: shipping .ts is unloadable from node_modules.
